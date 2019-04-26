@@ -52,3 +52,4 @@ export async function estimatePose(anImage) {
 
   return pose;
 }
+
