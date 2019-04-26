@@ -1,3 +1,7 @@
+// Referenced code from https://github.com/playgrdstar/posenet_threejs/blob/master/sketch.js for posenet and loading webcam
+// Referenced MDN docs on navigator.mediaDevices.getUserMedia and promises
+// https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+
 export function paintWebcam() {
   const canvas = document.getElementById('overlay');
   const video = document.getElementById('video');
