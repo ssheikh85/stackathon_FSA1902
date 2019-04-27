@@ -1,4 +1,3 @@
-import { animationLoop } from './animate';
+import { init } from './animate';
 
-
-animationLoop();
+init();

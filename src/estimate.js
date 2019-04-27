@@ -36,12 +36,12 @@ export async function loadVideo() {
   return video;
 }
 
-export async function estimatePose(anImage) {
+export async function estimatePose(anImage, net) {
   const imageScaleFactor = 0.5;
   const flipHorizontal = true;
   const outputStride = 32;
 
-  const net = await posenet.load();
+  net = await posenet.load(0.5);
 
   const pose = await net.estimateSinglePose(
     anImage,
@@ -52,4 +52,3 @@ export async function estimatePose(anImage) {
 
   return pose;
 }
-
