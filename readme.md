@@ -2,3 +2,4 @@
 #For Fullstack Senior phase stackathon
 #Saeed Sheikh Apr - 2019
 
+#model in app is from mixamo.com https://www.mixamo.com/

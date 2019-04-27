@@ -14,4 +14,5 @@ a {
   display: flex;
   justify-content: center;
   background-color: black;
+  font-size: 20px;
 }
