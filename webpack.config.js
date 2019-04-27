@@ -1,4 +1,6 @@
 const isDev = process.env.NODE_ENV === 'development';
+const webpack = require('webpack');
+const path = require('path');
 
 module.exports = {
   mode: isDev ? 'development' : 'production',
@@ -26,7 +28,17 @@ module.exports = {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         loader: 'babel-loader'
+      },
+      {
+        test: [/\.vert$/, /\.frag$/],
+        use: 'raw-loader'
       }
     ]
-  }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      CANVAS_RENDERER: JSON.stringify(true),
+      WEBGL_RENDERER: JSON.stringify(true)
+    })
+  ]
 };
