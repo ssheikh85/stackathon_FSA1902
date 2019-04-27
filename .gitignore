@@ -11,4 +11,5 @@ npm-debug.log
 # OSX
 .DS_Store
 
-
+#glb file
+Soldier.glb

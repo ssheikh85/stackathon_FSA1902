@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@tensorflow-models/posenet": "^1.0.2",
-    "phaser": "^3.16.2"
+    "three": "^0.104.0",
+    "three-gltf-loader": "^1.104.0"
   }
 }
