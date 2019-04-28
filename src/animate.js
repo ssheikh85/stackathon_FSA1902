@@ -23,7 +23,7 @@ const createCamera = () => {
   const far = 100; // far clipping plane
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
-  camera.position.set(1, 2, -3);
+  camera.position.set(1, 2, 7);
   camera.lookAt(0, 0, 0);
 };
 
@@ -47,7 +47,7 @@ const createLights = () => {
 
 const createBackground = () => {
   const textureLoader = new THREE.TextureLoader();
-  textureLoader.load('sky.jpg', function(texture) {
+  textureLoader.load('background.jpg', function(texture) {
     scene.background = texture;
   });
 };
@@ -79,14 +79,14 @@ const loadEnv = () => {
         env = gltf1.scene.children[0];
         position1 = new THREE.Vector3(0, 0, 0);
         model.position.copy(position1);
-        scale1 = new THREE.Vector3(10, 10, 10);
+        scale1 = new THREE.Vector3(17, 17, 17);
         env.scale.copy(scale1);
         group.add(env);
       })
       .catch(err => {
         console.error(err);
       });
-    GLTFPromiseLoaderModel.load('Parrot.glb')
+    GLTFPromiseLoaderModel.load('Bird.glb')
       .then((gltf2, position, scale) => {
         model = gltf2.scene.children[0];
         position = new THREE.Vector3(0, 0, 0);
