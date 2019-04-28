@@ -70,7 +70,7 @@ const loadModel = () => {
     GLTFPromiseLoader.load('Droid.glb')
       .then((gltf, position) => {
         model = gltf.scene.children[0];
-        position = new THREE.Vector3(0, 0, 2.5);
+        position = new THREE.Vector3(1, 0, 7);
         model.position.copy(position);
 
         const animation = gltf.animations[3];
@@ -136,11 +136,12 @@ export async function animationLoop() {
   let minPoseConfidence = 0.1;
   let minPartCondifence = 0.5;
   let scalingFactor = 1000;
+  let offset = 1;
 
   if (poseToReturn.score >= minPoseConfidence) {
     poseToReturn.keypoints.forEach(bodyPart => {
       if (bodyPart.score >= minPartCondifence) {
-        let xCoord = bodyPart.position.x / scalingFactor;
+        let xCoord = bodyPart.position.x / scalingFactor + offset;
         console.log('Show us the X', xCoord);
         model.position.x = xCoord;
         model.position.z += 0.001;
