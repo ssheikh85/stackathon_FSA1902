@@ -12,5 +12,7 @@ npm-debug.log
 .DS_Store
 
 #glb file
-Droid.glb
-surface.jpg
+sky.jpg
+terrain.glb
+Parrot.glb
+

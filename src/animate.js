@@ -3,11 +3,16 @@ import GLTFLoader from 'three-gltf-loader';
 import * as posenet from '@tensorflow-models/posenet';
 import { loadVideo, estimatePose } from './estimate';
 import { paintWebcam } from './canvas';
+import OrbitControls from 'three-orbitcontrols';
 
 let scene, renderer, camera;
+let controls;
 let container;
 let clock;
+let env = new THREE.Object3D();
 let model = new THREE.Object3D();
+let group = new THREE.Group();
+
 let mixers = [];
 
 const createCamera = () => {
@@ -19,7 +24,11 @@ const createCamera = () => {
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
   camera.position.set(1, 2, -3);
-  camera.lookAt(0, 1, 0);
+  camera.lookAt(0, 0, 0);
+};
+
+const createControls = () => {
+  controls = new OrbitControls(camera, container);
 };
 
 const createLights = () => {
@@ -38,13 +47,13 @@ const createLights = () => {
 
 const createBackground = () => {
   const textureLoader = new THREE.TextureLoader();
-  textureLoader.load('surface.jpg', function(texture) {
+  textureLoader.load('sky.jpg', function(texture) {
     scene.background = texture;
   });
 };
 
 //code adapted from https://blackthread.io/blog/promisifying-threejs-loaders/ to handle the possibility of asynchronous behavior
-const loadModel = () => {
+const loadEnv = () => {
   function promisifyLoader(loader, onProgress) {
     function promiseLoader(url) {
       return new Promise((resolve, reject) => {
@@ -58,35 +67,51 @@ const loadModel = () => {
     };
   }
 
-  const loader = new GLTFLoader();
-  // Next, we'll convert the GLTFLoader into a GLTFPromiseLoader
-  // onProgress is optional and we are not using it here
-  const GLTFPromiseLoader = promisifyLoader(loader);
+  const loaderModel = new GLTFLoader();
+  const loaderEnv = new GLTFLoader();
 
-  // Finally, here is simplest possible example of using the promise loader
-  // Refer to www.blackthreaddesign.com/blog/promisifying-threejs-loaders/
-  // for more detailed examples
+  const GLTFPromiseLoaderModel = promisifyLoader(loaderModel);
+  const GLTFPromiseLoaderEnv = promisifyLoader(loaderEnv);
+
   function load() {
-    GLTFPromiseLoader.load('Droid.glb')
-      .then((gltf, position) => {
-        model = gltf.scene.children[0];
-        position = new THREE.Vector3(0, 0, 7);
+    GLTFPromiseLoaderEnv.load('terrain.glb')
+      .then((gltf1, position1, scale1) => {
+        env = gltf1.scene.children[0];
+        position1 = new THREE.Vector3(0, 0, 0);
+        model.position.copy(position1);
+        scale1 = new THREE.Vector3(5, 5, 5);
+        env.scale.copy(scale1);
+        group.add(env);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+    GLTFPromiseLoaderModel.load('Parrot.glb')
+      .then((gltf2, position, scale) => {
+        model = gltf2.scene.children[0];
+        position = new THREE.Vector3(0, 0, 0);
+        scale = new THREE.Vector3(0.005, 0.005, 0.005);
         model.position.copy(position);
+        model.scale.copy(scale);
+        console.log(model);
 
-        const animation = gltf.animations[3];
+        const animation = gltf2.animations[0];
 
         const mixer = new THREE.AnimationMixer(model);
         mixers.push(mixer);
 
         const action = mixer.clipAction(animation);
         action.play();
-        scene.add(model);
+
+        group.add(model);
       })
       .catch(err => {
         console.error(err);
       });
   }
+
   load();
+  scene.add(group);
 };
 
 const setupRenderer = () => {
@@ -111,8 +136,9 @@ function init() {
 
   createCamera();
   createLights();
+  createControls();
   createBackground();
-  loadModel();
+  loadEnv();
   setupRenderer();
 }
 
@@ -145,11 +171,15 @@ export async function animationLoop() {
 
   if (poseToReturn.score >= minPoseConfidence) {
     poseToReturn.keypoints.forEach(bodyPart => {
+      let xCoord = bodyPart.position.x / scalingFactor;
+      // let yCoord = bodyPart.position.x / scalingFactor;
       if (bodyPart.score >= minPartScore) {
-        if (bodyPart.score === maxPartScore) {
-          let xCoord = bodyPart.position.x / scalingFactor;
-          console.log('Show us the X', xCoord);
+        if (bodyPart.part.includes('left')) {
+          console.log('Show us the X -left', xCoord);
           model.position.x += xCoord;
+        } else if (bodyPart.part.includes('right')) {
+          console.log('Show us the X -right', xCoord);
+          model.position.x -= xCoord;
         }
       }
     });
