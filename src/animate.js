@@ -182,8 +182,6 @@ export async function animationLoop() {
     });
   }
 
-  // model.position.z += 0.001;
-
   const delta = clock.getDelta();
   mixers.forEach(mixer => {
     mixer.update(delta);
