@@ -168,11 +168,13 @@ export async function animationLoop() {
       let yCoord = bodyPart.position.x / scalingFactor;
       if (bodyPart.score >= minPartScore) {
         if (bodyPart.part.includes('left')) {
+          //model movement
           model.position.x -= xCoord;
           model.position.y -= yCoord;
           model.rotation.x -= xCoord;
           model.rotation.y -= yCoord;
         } else if (bodyPart.part.includes('right')) {
+          //model movement
           model.position.x += xCoord;
           model.position.y += yCoord;
           model.rotation.x += xCoord;

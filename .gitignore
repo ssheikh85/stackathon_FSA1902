@@ -11,8 +11,9 @@ npm-debug.log
 # OSX
 .DS_Store
 
-#glb file
-background.jpg
+#glb files
 terrain.glb
 Bird.glb
+background.jpg
+
 

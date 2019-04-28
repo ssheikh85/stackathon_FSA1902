@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build-client-watch": "webpack -w",
-    "start-server": "webpack-dev-server -e html,js,scss ",
+    "start-dev-server": "webpack-dev-server -e html,js,scss ",
+    "start-server": "nodemon server -e html,js,scss ",
     "start": "NODE_ENV='development' npm run build-client-watch & NODE_ENV='development' npm run start-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,6 +24,10 @@
   },
   "dependencies": {
     "@tensorflow-models/posenet": "^1.0.2",
+    "express": "^4.16.4",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.18.11",
+    "path": "^0.12.7",
     "three": "^0.104.0",
     "three-gltf-loader": "^1.104.0",
     "three-orbitcontrols": "^2.102.1"
