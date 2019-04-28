@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
+import OrbitControls from 'three-orbitcontrols';
 import * as posenet from '@tensorflow-models/posenet';
 import { loadVideo, estimatePose } from './estimate';
 import { paintWebcam } from './canvas';
-import OrbitControls from 'three-orbitcontrols';
 
 let scene, renderer, camera;
 let controls;
