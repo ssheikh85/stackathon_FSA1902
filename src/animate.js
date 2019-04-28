@@ -67,11 +67,11 @@ const loadEnv = () => {
     };
   }
 
-  const loaderModel = new GLTFLoader();
   const loaderEnv = new GLTFLoader();
+  const loaderModel = new GLTFLoader();
 
-  const GLTFPromiseLoaderModel = promisifyLoader(loaderModel);
   const GLTFPromiseLoaderEnv = promisifyLoader(loaderEnv);
+  const GLTFPromiseLoaderModel = promisifyLoader(loaderModel);
 
   function load() {
     GLTFPromiseLoaderEnv.load('terrain.glb')
@@ -79,7 +79,7 @@ const loadEnv = () => {
         env = gltf1.scene.children[0];
         position1 = new THREE.Vector3(0, 0, 0);
         model.position.copy(position1);
-        scale1 = new THREE.Vector3(5, 5, 5);
+        scale1 = new THREE.Vector3(10, 10, 10);
         env.scale.copy(scale1);
         group.add(env);
       })
@@ -93,7 +93,6 @@ const loadEnv = () => {
         scale = new THREE.Vector3(0.005, 0.005, 0.005);
         model.position.copy(position);
         model.scale.copy(scale);
-        console.log(model);
 
         const animation = gltf2.animations[0];
 
@@ -161,31 +160,29 @@ export async function animationLoop() {
 
   let minPoseConfidence = 0.1;
   let minPartScore = 0.5;
-  let scalingFactor = 5000;
-
-  console.log(poseToReturn);
-  let maxPartScore = Math.max.apply(
-    Math,
-    poseToReturn.keypoints.map(elem => elem.score)
-  );
+  let scalingFactor = 6000;
 
   if (poseToReturn.score >= minPoseConfidence) {
     poseToReturn.keypoints.forEach(bodyPart => {
       let xCoord = bodyPart.position.x / scalingFactor;
-      // let yCoord = bodyPart.position.x / scalingFactor;
+      let yCoord = bodyPart.position.x / scalingFactor;
       if (bodyPart.score >= minPartScore) {
         if (bodyPart.part.includes('left')) {
-          console.log('Show us the X -left', xCoord);
-          model.position.x += xCoord;
-        } else if (bodyPart.part.includes('right')) {
-          console.log('Show us the X -right', xCoord);
           model.position.x -= xCoord;
+          model.position.y -= yCoord;
+          model.rotation.x -= xCoord;
+          model.rotation.y -= yCoord;
+        } else if (bodyPart.part.includes('right')) {
+          model.position.x += xCoord;
+          model.position.y += yCoord;
+          model.rotation.x += xCoord;
+          model.rotation.y += yCoord;
         }
       }
     });
   }
 
-  model.position.z += 0.001;
+  // model.position.z += 0.001;
 
   const delta = clock.getDelta();
   mixers.forEach(mixer => {
