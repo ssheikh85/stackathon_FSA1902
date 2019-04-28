@@ -135,7 +135,7 @@ export async function animationLoop() {
 
   let minPoseConfidence = 0.1;
   let minPartScore = 0.5;
-  let scalingFactor = 1000;
+  let scalingFactor = 5000;
 
   console.log(poseToReturn);
   let maxPartScore = Math.max.apply(
@@ -149,7 +149,7 @@ export async function animationLoop() {
         if (bodyPart.score === maxPartScore) {
           let xCoord = bodyPart.position.x / scalingFactor;
           console.log('Show us the X', xCoord);
-          model.position.x = xCoord;
+          model.position.x += xCoord;
         }
       }
     });
