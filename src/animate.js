@@ -47,9 +47,12 @@ const createLights = () => {
 
 const createBackground = () => {
   const textureLoader = new THREE.TextureLoader();
-  textureLoader.load('background.jpg', function(texture) {
-    scene.background = texture;
-  });
+  textureLoader.load(
+    'https://s3.us-east-2.amazonaws.com/web-avatar-assets/background.jpg',
+    function(texture) {
+      scene.background = texture;
+    }
+  );
 };
 
 //code adapted from https://blackthread.io/blog/promisifying-threejs-loaders/ to handle the possibility of asynchronous behavior
@@ -74,7 +77,9 @@ const loadEnv = () => {
   const GLTFPromiseLoaderModel = promisifyLoader(loaderModel);
 
   function load() {
-    GLTFPromiseLoaderEnv.load('terrain.glb')
+    GLTFPromiseLoaderEnv.load(
+      'https://s3.us-east-2.amazonaws.com/web-avatar-assets/terrain.glb'
+    )
       .then((gltf1, position1, scale1) => {
         env = gltf1.scene.children[0];
         position1 = new THREE.Vector3(0, 0, 0);
@@ -86,7 +91,9 @@ const loadEnv = () => {
       .catch(err => {
         console.error(err);
       });
-    GLTFPromiseLoaderModel.load('Bird.glb')
+    GLTFPromiseLoaderModel.load(
+      'https://s3.us-east-2.amazonaws.com/web-avatar-assets/Bird.glb'
+    )
       .then((gltf2, position, scale) => {
         model = gltf2.scene.children[0];
         position = new THREE.Vector3(0, 0, 0);
