@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build-client-watch": "webpack -w",
-    "start-dev": "NODE_ENV='development' npm run build-client-watch & NODE_ENV='development' npm run start-server",
     "start-server": "webpack-dev-server -e html,js,scss ",
+    "start": "NODE_ENV='development' npm run build-client-watch & NODE_ENV='development' npm run start-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
