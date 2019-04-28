@@ -1,14 +1,14 @@
-import { loadVideo, estimatePose } from './estimate';
-import { paintWebcam } from './canvas';
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
 import * as posenet from '@tensorflow-models/posenet';
+import { loadVideo, estimatePose } from './estimate';
+import { paintWebcam } from './canvas';
 
 let scene, renderer, camera;
-let model;
-let mixers = [];
 let container;
 let clock;
+let model = new THREE.Object3D();
+let mixers = [];
 
 const createCamera = () => {
   const fov = 35; // fov = Field Of View
@@ -21,6 +21,7 @@ const createCamera = () => {
   camera.position.set(1, 2, -3);
   camera.lookAt(0, 1, 0);
 };
+
 const createLights = () => {
   const ambientLight = new THREE.HemisphereLight(
     0xddeeff, // sky color
@@ -30,34 +31,62 @@ const createLights = () => {
 
   const mainLight = new THREE.DirectionalLight(0xffffff, 5);
   mainLight.position.set(10, 10, 10);
+  const light = new THREE.DirectionalLight(0xffffff, 3.0);
 
-  scene.add(ambientLight, mainLight);
+  scene.add(ambientLight, mainLight, light);
 };
 
+const createBackground = () => {
+  const textureLoader = new THREE.TextureLoader();
+  textureLoader.load('surface.jpg', function(texture) {
+    scene.background = texture;
+  });
+};
+
+//code adapted from https://blackthread.io/blog/promisifying-threejs-loaders/ to handle the possibility of asynchronous behavior
 const loadModel = () => {
+  function promisifyLoader(loader, onProgress) {
+    function promiseLoader(url) {
+      return new Promise((resolve, reject) => {
+        loader.load(url, resolve, onProgress, reject);
+      });
+    }
+
+    return {
+      originalLoader: loader,
+      load: promiseLoader
+    };
+  }
+
   const loader = new GLTFLoader();
-  const onLoad = (gltf, position) => {
-    model = gltf.scene.children[0];
-    model.position.copy(position);
+  // Next, we'll convert the GLTFLoader into a GLTFPromiseLoader
+  // onProgress is optional and we are not using it here
+  const GLTFPromiseLoader = promisifyLoader(loader);
 
-    const animation = gltf.animations[3];
+  // Finally, here is simplest possible example of using the promise loader
+  // Refer to www.blackthreaddesign.com/blog/promisifying-threejs-loaders/
+  // for more detailed examples
+  function load() {
+    GLTFPromiseLoader.load('Droid.glb')
+      .then((gltf, position) => {
+        model = gltf.scene.children[0];
+        position = new THREE.Vector3(0, 0, 2.5);
+        model.position.copy(position);
 
-    const mixer = new THREE.AnimationMixer(model);
-    mixers.push(mixer);
+        const animation = gltf.animations[3];
 
-    const action = mixer.clipAction(animation);
-    action.play();
+        const mixer = new THREE.AnimationMixer(model);
+        mixers.push(mixer);
 
-    scene.add(model);
-  };
-  const onProgress = () => {};
-
-  const onError = errorMessage => {
-    console.log(errorMessage);
-  };
-
-  const position = new THREE.Vector3(0, 0, 4);
-  loader.load('Droid.glb', gltf => onLoad(gltf, position), onProgress, onError);
+        const action = mixer.clipAction(animation);
+        action.play();
+        scene.add(model);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+  load();
 };
 
 const setupRenderer = () => {
@@ -69,24 +98,12 @@ const setupRenderer = () => {
   renderer.shadowMap.enabled = true;
   container.appendChild(renderer.domElement);
 };
-const update = () => {
-  const delta = clock.getDelta();
-  mixers.forEach(mixer => {
-    mixer.update(delta);
-  });
-};
+
 const render = () => {
   renderer.render(scene, camera);
 };
 
-const play = () => {
-  renderer.setAnimationLoop(() => {
-    update();
-    render();
-  });
-};
-
-export function init() {
+function init() {
   container = document.getElementById('animation-container');
   scene = new THREE.Scene();
   clock = new THREE.Clock();
@@ -94,49 +111,10 @@ export function init() {
 
   createCamera();
   createLights();
+  createBackground();
   loadModel();
   setupRenderer();
-  play();
 }
-
-// class ModelToUpdate {
-//   constructor(modelIn) {
-//     this.model = modelIn;
-//   }
-//   updatePosition(x = 0, y = 0) {
-//     this.model.position.x = x;
-//     this.model.position.y = y;
-//   }
-// }
-// console.log(model);
-// const modelToMove = new ModelToUpdate(model);
-// console.log(modelToMove);
-
-// export function animationLoop() {
-//   const net = await posenet.load(0.75);
-//   const imageElement = await loadVideo();
-//   net.dispose();
-//   const poseToReturn = await estimatePose(imageElement, net);
-//   window.onload = paintWebcam();
-
-//   let minPoseConfidence = 0;
-//   let minPartCodifence = 0;
-
-//   console.log(poseToReturn);
-//   if (poseToReturn.score >= minPoseConfidence) {
-//     poseToReturn.keypoints.forEach(bodyPart => {
-//       if (bodyPart.score >= minPartCodifence) {
-//         let xCoord = bodyPart.position.x * 0.00075;
-//         let yCoord = bodyPart.position.y * 0.00075;
-//         console.log('Show us the X', xCoord, 'Show us the Y', yCoord);
-//         model.position.x += xCoord;
-//         model.position.y += yCoord;
-//       }
-//     });
-//   }
-
-//   requestAnimationFrame(animationLoop);
-// }
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -145,3 +123,35 @@ function onWindowResize() {
 }
 
 window.addEventListener('resize', onWindowResize, false);
+
+init();
+
+export async function animationLoop() {
+  const net = await posenet.load(0.75);
+  const imageElement = await loadVideo();
+  net.dispose();
+  const poseToReturn = await estimatePose(imageElement, net);
+  window.onload = paintWebcam();
+
+  let minPoseConfidence = 0.1;
+  let minPartCondifence = 0.5;
+  let scalingFactor = 1000;
+
+  if (poseToReturn.score >= minPoseConfidence) {
+    poseToReturn.keypoints.forEach(bodyPart => {
+      if (bodyPart.score >= minPartCondifence) {
+        let xCoord = bodyPart.position.x / scalingFactor;
+        console.log('Show us the X', xCoord);
+        model.position.x = xCoord;
+        model.position.z += 0.001;
+      }
+    });
+  }
+  const delta = clock.getDelta();
+  mixers.forEach(mixer => {
+    mixer.update(delta);
+  });
+
+  requestAnimationFrame(animationLoop);
+  render();
+}

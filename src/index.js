@@ -1,3 +1,3 @@
-import { init } from './animate';
+import { animationLoop } from './animate';
 
-init();
+animationLoop();
