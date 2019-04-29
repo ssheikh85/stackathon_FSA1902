@@ -13,6 +13,7 @@
 #App uses your webcam and TensorflowJS Posenet model to move a bird left or right based on you moving left or right
 #(See screenshot above for example environment)
 #Enviroment created using ThreeJS, models used are referenced above, credit goes to the authors
+#App is served using a simple express server, built and bundled using webpack
 
 #Future Features to consider
 #Have 3D model pinned down, have models move around the environment, have camera follow the object around as you move it
