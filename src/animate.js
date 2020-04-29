@@ -48,7 +48,7 @@ const createLights = () => {
 const createBackground = () => {
   const textureLoader = new THREE.TextureLoader();
   textureLoader.load(
-    'https://s3.us-east-2.amazonaws.com/web-avatar-assets/background.jpg',
+    //background.jpg - AWS bucket deleted to run need to point to new location of asset,
     function(texture) {
       scene.background = texture;
     }
@@ -78,7 +78,7 @@ const loadEnv = () => {
 
   function load() {
     GLTFPromiseLoaderEnv.load(
-      'https://s3.us-east-2.amazonaws.com/web-avatar-assets/terrain.glb'
+      //terrain.glb - AWS bucket deleted to run need to point to new location of asset
     )
       .then((gltf1, position1, scale1) => {
         env = gltf1.scene.children[0];
@@ -92,7 +92,7 @@ const loadEnv = () => {
         console.error(err);
       });
     GLTFPromiseLoaderModel.load(
-      'https://s3.us-east-2.amazonaws.com/web-avatar-assets/Bird.glb'
+      //Bird.glb - AWS bucket deleted to run need to point to new location of asset
     )
       .then((gltf2, position, scale) => {
         model = gltf2.scene.children[0];
